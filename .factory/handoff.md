@@ -45,6 +45,8 @@ npm run package
 - `npm run package`: crate package built and verified; the factory may publish
   with `cargo publish --manifest-path cli/Cargo.toml` when credentials and release
   policy are ready. This worker did not publish.
+- A fresh local clone of the complete implementation passed `npm ci`, `npm test`, and
+  `npm run build`; both required output files were present.
 
 `npm run build` is the work-order build command. It writes the static deploy to
 `dist/site/` (with `index.html` at that root) and the Linux release binary to
