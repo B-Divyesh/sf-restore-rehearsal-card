@@ -1,7 +1,9 @@
 /target/
 /dist/
 /node_modules/
+/graphify-out/
 /.rrc/
 **/.rrc/*.key
 *.md.tmp
-
+/test-results/
+/playwright-report/

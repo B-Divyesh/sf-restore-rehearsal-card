@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#07110f" />
+    <meta name="description" content="Run isolated restore drills, verify the result, and emit a signed Markdown recovery card." />
+    <title>Restore Rehearsal Card — prove your backup comes back</title>
+    <link rel="icon" href="/mark.svg" type="image/svg+xml" />
+    <link rel="preload" href="/recovery-observatory-768.webp" as="image" type="image/webp" media="(max-width: 760px)" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to main content</a>
+    <header class="site-header">
+      <a class="brand" href="/" aria-label="Restore Rehearsal Card home">
+        <svg viewBox="0 0 34 34" aria-hidden="true"><path d="M17 2 29 9v16l-12 7L5 25V9Z"/><path d="m10 17 5 5 9-11"/></svg>
+        <span>Restore Rehearsal Card</span>
+      </a>
+      <nav aria-label="Primary navigation">
+        <a href="#install">Install</a>
+        <a href="#method">Method</a>
+        <a href="#operator-pack">Operator Pack</a>
+      </nav>
+    </header>
+
+    <div id="offline-notice" class="network-notice" role="status" hidden>
+      You’re offline. The docs and free CLI instructions still work; license verification will resume when you reconnect.
+    </div>
+
+    <main id="main">
+      <section class="hero" aria-labelledby="hero-title">
+        <div class="hero-copy">
+          <p class="eyebrow"><span class="pulse-dot" aria-hidden="true"></span> Local recovery evidence</p>
+          <h1 id="hero-title">Know your backup<br /><em>comes back.</em></h1>
+          <p class="lede">Restore into an isolated Compose target. Check health and row counts. Leave with a signed Markdown card instead of a hopeful checklist.</p>
+          <div class="hero-actions">
+            <a class="button primary" href="#install">Run your first drill</a>
+            <a class="text-link" href="https://github.com/B-Divyesh/sf-restore-rehearsal-card">Read the source <span aria-hidden="true">↗</span></a>
+          </div>
+          <ul class="proof-list" aria-label="Product principles">
+            <li>Typed commands</li><li>No telemetry</li><li>Ed25519 signed</li>
+          </ul>
+        </div>
+        <figure class="observatory">
+          <picture>
+            <source media="(max-width: 760px)" srcset="/recovery-observatory-768.webp" />
+            <img src="/recovery-observatory.webp" width="1280" height="853" fetchpriority="high" alt="A backup capsule passes through an isolated glass basin and two verification beacons before reaching a signed evidence card." />
+          </picture>
+          <figcaption>
+            <span>01 Backup</span><span>02 Isolate</span><span>03 Assert</span><span>04 Sign</span>
+          </figcaption>
+        </figure>
+      </section>
+
+      <section class="signal-band" aria-label="What the card records">
+        <p>Not “backup completed.”</p>
+        <p class="signal-answer">“Service healthy. 18,402 rows. RTO met. Signature valid.”</p>
+      </section>
+
+      <section id="method" class="method section-shell" aria-labelledby="method-title">
+        <div class="section-heading">
+          <p class="eyebrow">One declared path</p>
+          <h2 id="method-title">From artifact to evidence.</h2>
+          <p>Every operation is explicit, timed, and contained. A failure creates evidence too.</p>
+        </div>
+        <ol class="route-list">
+          <li><span class="route-number">01</span><div><h3>Fingerprint the input</h3><p>Record SHA-256 and byte count without opening backup contents in the report.</p></div></li>
+          <li><span class="route-number">02</span><div><h3>Build a clean boundary</h3><p>Refuse host networking, bind mounts, external volumes, privileged services, and production-like targets.</p></div></li>
+          <li><span class="route-number">03</span><div><h3>Ask useful questions</h3><p>Check container health, exact row-count ranges, and declared exit codes—not just process completion.</p></div></li>
+          <li><span class="route-number">04</span><div><h3>Sign what happened</h3><p>Write a portable Markdown card with timings, checks, RTO outcome, and an embedded Ed25519 signature.</p></div></li>
+        </ol>
+      </section>
+
+      <section id="install" class="install section-shell" aria-labelledby="install-title">
+        <div class="section-heading">
+          <p class="eyebrow">A small binary, no agent</p>
+          <h2 id="install-title">Your weekly drill in three commands.</h2>
+          <p>Requires Docker Compose. The CLI itself never phones home.</p>
+        </div>
+        <div class="terminal-wrap">
+          <div class="terminal-bar"><span aria-hidden="true">● ● ●</span><span>restore-rehearsal.toml</span></div>
+          <pre id="install-command"><code><span class="prompt">$</span> cargo install --git https://github.com/B-Divyesh/sf-restore-rehearsal-card
+<span class="prompt">$</span> rrc init
+<span class="prompt">$</span> rrc run --confirm-target restore-card-weekly --output weekly.md</code></pre>
+          <button class="copy-button" type="button" data-copy-target="install-command"><span>Copy commands</span></button>
+          <p class="copy-status" role="status" aria-live="polite"></p>
+        </div>
+        <div class="demo-panel" aria-labelledby="demo-title">
+          <div class="demo-copy"><p class="eyebrow">Recorded demo</p><h3 id="demo-title">A passing run, line by line.</h3><p>No Docker needed to preview the operator flow.</p><button id="demo-toggle" class="button secondary" type="button" aria-controls="demo-output">Play demo</button></div>
+          <pre id="demo-output" class="demo-output" tabindex="0" aria-label="Recorded Restore Rehearsal Card terminal output"><code><span class="demo-line is-visible"><b>$</b> rrc run --confirm-target restore-card-weekly</span>
+<span class="demo-line">✓ backup.dump  84.2 MB  sha256:7f9a…c31d</span>
+<span class="demo-line">✓ isolated target started  4.18 s</span>
+<span class="demo-line">✓ restore command exited 0  output omitted</span>
+<span class="demo-line">✓ database healthy  1.04 s</span>
+<span class="demo-line">✓ accounts: 18,402 rows  expected ≥ 1</span>
+<span class="demo-line result">PASS · 41.22 s / 300 s RTO · card signed</span></code></pre>
+        </div>
+      </section>
+
+      <section class="failure-section section-shell" aria-labelledby="failure-title">
+        <div class="failure-shard" aria-hidden="true"></div>
+        <div><p class="eyebrow warning">Failure is a result</p><h2 id="failure-title">Break the restore now.<br />Not during the incident.</h2></div>
+        <p>A bad checksum, failed command, unhealthy service, missed count, or breached RTO produces a signed failed card and exit code 4 for CI. Cleanup still runs.</p>
+      </section>
+
+      <section id="operator-pack" class="pricing section-shell" aria-labelledby="pricing-title">
+        <div class="price-intro">
+          <p class="eyebrow">Optional team layer</p>
+          <h2 id="pricing-title">The CLI stays free.<br />The meeting gets sharper.</h2>
+          <p>The Operator Pack adds reusable review material for teams that need a consistent recovery ritual. It never gates cards, verification, export, accessibility, or safety.</p>
+        </div>
+        <div class="price-panel">
+          <p class="price"><span>$39</span> USD</p>
+          <p class="once">One-time purchase · updates included</p>
+          <ul><li>Weekly rehearsal runbook</li><li>Failure review agenda</li><li>RTO decision log template</li><li>Six service profile worksheets</li></ul>
+          <a id="buy-link" class="button primary wide" href="https://pilot-api.sociobot.in/api/v1/products/restore-rehearsal-card/checkout">Get the Operator Pack</a>
+          <details class="restore-license">
+            <summary>Have a license? Restore purchase</summary>
+            <form id="license-form" novalidate>
+              <label for="license-token">License token</label>
+              <div class="field-row"><input id="license-token" name="license" type="text" autocomplete="off" spellcheck="false" required aria-describedby="license-help license-status" /><button type="submit" class="button secondary" aria-label="Verify license">Verify license</button></div>
+              <p id="license-help" class="field-help">Stored only in this browser. Paste the complete token from your receipt.</p>
+            </form>
+          </details>
+          <div id="license-status" class="license-status" role="status" aria-live="polite"></div>
+          <div id="operator-downloads" class="operator-downloads" hidden>
+            <p><strong>Operator Pack unlocked.</strong> Your templates are ready.</p>
+            <button class="button secondary wide" type="button" data-kit="runbook">Download rehearsal runbook</button>
+            <button class="button secondary wide" type="button" data-kit="decision-log">Download RTO decision log</button>
+            <button class="button secondary wide" type="button" data-kit="review-pack">Download review &amp; service profiles</button>
+          </div>
+          <p class="merchant-note">Checkout and refunds are handled by Sociobot/Dodo, the merchant of record. <a href="/terms/">Terms</a> · <a href="/privacy/">Privacy</a></p>
+        </div>
+      </section>
+
+      <section class="closing section-shell" aria-labelledby="closing-title"><p class="eyebrow">The useful artifact</p><h2 id="closing-title">A backup is a promise.<br /><em>A rehearsal is evidence.</em></h2><a class="button primary" href="#install">Start with the free CLI</a></section>
+    </main>
+
+    <footer><a class="brand small" href="/"><svg viewBox="0 0 34 34" aria-hidden="true"><path d="M17 2 29 9v16l-12 7L5 25V9Z"/><path d="m10 17 5 5 9-11"/></svg><span>Restore Rehearsal Card</span></a><p>Local evidence for recovery operators.</p><nav aria-label="Footer navigation"><a href="https://github.com/B-Divyesh/sf-restore-rehearsal-card">Source</a><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a></nav></footer>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

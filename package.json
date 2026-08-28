@@ -1,0 +1,32 @@
+{
+  "name": "restore-rehearsal-card",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --config site/vite.config.ts",
+    "preview": "vite preview --config site/vite.config.ts",
+    "test": "cargo test --workspace && tsc --noEmit -p site/tsconfig.json && vitest run --config site/vitest.config.ts",
+    "test:browser": "playwright test --config site/playwright.config.ts",
+    "build:site": "vite build --config site/vite.config.ts",
+    "build:cli": "cargo build --release && mkdir -p dist/bin && cp target/release/rrc dist/bin/rrc",
+    "build": "npm run build:site && npm run build:cli",
+    "package": "cargo package --manifest-path cli/Cargo.toml --allow-dirty"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "4.10.2",
+    "@playwright/test": "1.58.2",
+    "@types/node": "22.15.30",
+    "jsdom": "26.1.0",
+    "playwright": "1.58.2",
+    "typescript": "5.9.2",
+    "vite": "7.3.6",
+    "vitest": "3.2.7"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "overrides": {
+    "playwright-core": "1.58.2"
+  }
+}
