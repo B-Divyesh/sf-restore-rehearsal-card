@@ -1,6 +1,7 @@
-node_modules/
-dist/
-.env
-*.log
-graphify-out/
-.DS_Store
+/target/
+/dist/
+/node_modules/
+/.rrc/
+**/.rrc/*.key
+*.md.tmp
+

@@ -1,0 +1,49 @@
+version = 1
+name = "PostgreSQL example restore"
+rto_seconds = 120
+signing_key = ".rrc/rehearsal.key"
+
+[compose]
+file = "rehearsal.compose.yml"
+project = "rrc-postgres-example"
+
+[[artifacts]]
+id = "database-backup"
+path = "sample-backup.sql"
+
+[[steps]]
+id = "start-database"
+kind = "compose-up"
+services = ["database"]
+
+[[steps]]
+id = "prepare-staging-path"
+kind = "exec"
+service = "database"
+argv = ["mkdir", "-p", "/tmp/restore-rehearsal"]
+
+[[steps]]
+id = "copy-backup"
+kind = "copy"
+artifact = "database-backup"
+service = "database"
+destination = "/tmp/restore-rehearsal/backup.sql"
+
+[[steps]]
+id = "restore-backup"
+kind = "exec"
+service = "database"
+argv = ["psql", "--username", "rehearsal", "--dbname", "rehearsal", "--file", "/tmp/restore-rehearsal/backup.sql"]
+
+[[checks]]
+id = "database-ready"
+kind = "health"
+service = "database"
+
+[[checks]]
+id = "probe-row-present"
+kind = "row-count"
+service = "database"
+argv = ["psql", "--username", "rehearsal", "--dbname", "rehearsal", "--tuples-only", "--no-align", "--command", "SELECT count(*) FROM recovery_probe"]
+min = 1
+max = 1
