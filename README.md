@@ -18,7 +18,7 @@ cargo install --path cli
 rrc --help
 ```
 
-Requirements: Docker with the `docker compose` plugin. Rust 1.85+ is needed only
+Requirements: Docker with the `docker compose` plugin. Rust 1.88+ is needed only
 when building from source.
 
 ## Usage

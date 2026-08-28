@@ -3,6 +3,7 @@ name = "restore-rehearsal-card"
 description = "Run isolated restore drills and emit signed Markdown evidence"
 version.workspace = true
 edition.workspace = true
+rust-version = "1.88"
 license.workspace = true
 repository.workspace = true
 readme = "../README.md"
@@ -27,4 +28,3 @@ wait-timeout = "0.2"
 
 [dev-dependencies]
 tempfile = "3"
-
