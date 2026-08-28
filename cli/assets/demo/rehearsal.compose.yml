@@ -1,0 +1,20 @@
+services:
+  database:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: rehearsal
+      POSTGRES_USER: rehearsal
+      POSTGRES_PASSWORD: local-rehearsal-only
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U rehearsal -d rehearsal"]
+      interval: 2s
+      timeout: 2s
+      retries: 20
+    networks: [rehearsal]
+    volumes: [database-rehearsal:/var/lib/postgresql/data]
+
+networks:
+  rehearsal: {}
+
+volumes:
+  database-rehearsal: {}

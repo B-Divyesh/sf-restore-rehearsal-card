@@ -42,7 +42,7 @@ export function isFresh(verdict: LicenseVerdict, now = Date.now()): boolean {
 export async function requestVerdict(
   token: string,
   fetcher: typeof fetch = fetch,
-  baseUrl = import.meta.env.VITE_BILLING_BASE_URL || 'https://pilot-api.sociobot.in',
+  baseUrl = import.meta.env.VITE_BILLING_BASE_URL || 'https://api.sociobot.in',
 ): Promise<Omit<LicenseVerdict, 'token' | 'checkedAt'>> {
   const url = `${baseUrl}/api/v1/products/${PRODUCT_SLUG}/verify?license=${encodeURIComponent(token)}`;
   const response = await fetcher(url, { method: 'GET', headers: { Accept: 'application/json' } });

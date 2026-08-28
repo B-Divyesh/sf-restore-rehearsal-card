@@ -61,6 +61,15 @@ function setupDemo(): void {
   });
 }
 
+function setupSandboxDemo(): void {
+  const reset = one<HTMLButtonElement>('#reset-demo');
+  const state = one<HTMLElement>('#demo-state');
+  if (!reset || !state) return;
+  reset.addEventListener('click', () => {
+    state.textContent = 'Demo reset. Run `rrc demo` again to create a fresh temporary workspace.';
+  });
+}
+
 const kitContents: Record<string, { name: string; body: string }> = {
   runbook: {
     name: 'restore-rehearsal-runbook.md',
@@ -143,5 +152,6 @@ function setupLicense(): void {
 setupNetworkNotice();
 setupCopy();
 setupDemo();
+setupSandboxDemo();
 setupDownloads();
 setupLicense();

@@ -3,6 +3,8 @@ use std::collections::HashSet;
 use std::fs;
 use std::path::{Path, PathBuf};
 
+use crate::report::read_signing_key;
+
 #[derive(Debug, Clone, Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct Manifest {
@@ -153,6 +155,8 @@ impl Manifest {
                 compose_path.display()
             ));
         }
+        validate_compose_file(&compose_path)?;
+        read_signing_key(&base.join(&self.signing_key))?;
         let mut ids = HashSet::new();
         let mut artifacts = HashSet::new();
         for artifact in &self.artifacts {
@@ -259,6 +263,27 @@ impl Manifest {
     }
 }
 
+/// `check` is deliberately Docker-free, but it must still reject a compose
+/// document Docker could never read. Docker performs the authoritative
+/// Compose-schema validation immediately before a run.
+fn validate_compose_file(path: &Path) -> Result<(), String> {
+    let source = fs::read_to_string(path)
+        .map_err(|e| format!("could not read compose.file {}: {e}", path.display()))?;
+    let document: serde_yaml::Value = serde_yaml::from_str(&source)
+        .map_err(|e| format!("invalid Compose YAML {}: {e}", path.display()))?;
+    let services = document
+        .as_mapping()
+        .and_then(|map| map.get(serde_yaml::Value::String("services".into())))
+        .and_then(serde_yaml::Value::as_mapping);
+    if services.is_none_or(|items| items.is_empty()) {
+        return Err(format!(
+            "compose.file must declare at least one service: {}",
+            path.display()
+        ));
+    }
+    Ok(())
+}
+
 fn validate_label(field: &str, value: &str) -> Result<(), String> {
     if value.trim().is_empty() || value.len() > 80 {
         return Err(format!("{field} must contain 1–80 characters"));
@@ -347,5 +372,39 @@ mod tests {
             .validate(Path::new("."))
             .unwrap_err()
             .contains("production-like"));
+    }
+
+    #[test]
+    fn check_rejects_malformed_compose_and_corrupt_key() {
+        let dir = tempfile::tempdir().unwrap();
+        let manifest_path = dir.path().join("restore.toml");
+        fs::write(dir.path().join("compose.yml"), "services: [not valid\n").unwrap();
+        fs::write(dir.path().join("key"), "not a signing key\n").unwrap();
+        fs::write(
+            &manifest_path,
+            r#"version = 1
+name = "Check inputs"
+rto_seconds = 30
+signing_key = "key"
+[compose]
+file = "compose.yml"
+project = "rrc-check-inputs"
+[[steps]]
+id = "start"
+kind = "compose-up"
+services = ["database"]
+[[checks]]
+id = "ready"
+kind = "health"
+service = "database"
+"#,
+        )
+        .unwrap();
+        assert!(load_manifest(&manifest_path).unwrap_err().contains("invalid Compose YAML"));
+        fs::write(dir.path().join("compose.yml"), "services:\n  database:\n    image: postgres\n")
+            .unwrap();
+        assert!(load_manifest(&manifest_path)
+            .unwrap_err()
+            .contains("signing key"));
     }
 }

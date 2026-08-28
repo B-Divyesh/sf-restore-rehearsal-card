@@ -69,6 +69,10 @@ removed; all content remains visible and state changes are instant.
   #07110f.” License: project-owned generated asset.
 - All interface glyphs are hand-made inline SVG using simple geometry and are
   decorative unless paired with a text label. No third-party icon library.
+- `site/public/recovery-observatory-social.webp` and
+  `site/public/apple-touch-icon.png` are cropped, resized derivatives of the
+  project-owned recovery-observatory image above. They add social and device
+  metadata without introducing a new external asset.
 
 This system fits the product because it makes an otherwise invisible recovery
 path spatial: operators can see the separation boundary, checkpoints, and

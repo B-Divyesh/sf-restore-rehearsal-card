@@ -5,8 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#07110f" />
     <meta name="description" content="Run isolated restore drills, verify the result, and emit a signed Markdown recovery card." />
-    <title>Restore Rehearsal Card — prove your backup comes back</title>
+    <link rel="canonical" href="https://restore-rehearsal-card.sociobot.in/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Restore Rehearsal Card — Test backups safely" />
+    <meta property="og:description" content="Run an isolated restore drill and keep a signed card of what happened." />
+    <meta property="og:url" content="https://restore-rehearsal-card.sociobot.in/" />
+    <meta property="og:image" content="https://restore-rehearsal-card.sociobot.in/recovery-observatory-social.webp" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Restore Rehearsal Card — Test backups safely" />
+    <meta name="twitter:description" content="Run an isolated restore drill and keep a signed card of what happened." />
+    <meta name="twitter:image" content="https://restore-rehearsal-card.sociobot.in/recovery-observatory-social.webp" />
+    <title>Restore Rehearsal Card — Test backups safely</title>
     <link rel="icon" href="/mark.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="preload" href="/recovery-observatory-768.webp" as="image" type="image/webp" media="(max-width: 760px)" />
   </head>
   <body>
@@ -17,9 +28,10 @@
         <span>Restore Rehearsal Card</span>
       </a>
       <nav aria-label="Primary navigation">
-        <a href="#install">Install</a>
-        <a href="#method">Method</a>
-        <a href="#operator-pack">Operator Pack</a>
+        <a class="optional-nav" href="#install">Install</a>
+        <a class="optional-nav" href="#method">Method</a>
+        <a href="/demo/">Demo</a>
+        <a class="optional-nav" href="#operator-pack">Operator Pack</a>
       </nav>
     </header>
 
@@ -31,14 +43,15 @@
       <section class="hero" aria-labelledby="hero-title">
         <div class="hero-copy">
           <p class="eyebrow"><span class="pulse-dot" aria-hidden="true"></span> Local recovery evidence</p>
-          <h1 id="hero-title">Know your backup<br /><em>comes back.</em></h1>
-          <p class="lede">Restore into an isolated Compose target. Check health and row counts. Leave with a signed Markdown card instead of a hopeful checklist.</p>
+          <h1 id="hero-title">Test your backup<br /><em>before an incident.</em></h1>
+          <p class="lede">For database and self-hosted service operators who need proof a backup restores into a usable service.</p>
           <div class="hero-actions">
-            <a class="button primary" href="#install">Run your first drill</a>
+            <a class="button primary" href="/demo/">Try it with sample data</a>
+            <span class="action-note">Opens the shipped PostgreSQL sample and its exact CLI command.</span>
             <a class="text-link" href="https://github.com/B-Divyesh/sf-restore-rehearsal-card">Read the source <span aria-hidden="true">↗</span></a>
           </div>
           <ul class="proof-list" aria-label="Product principles">
-            <li>Typed commands</li><li>No telemetry</li><li>Ed25519 signed</li>
+            <li>Local CLI; no telemetry</li><li>Sample runs after install</li><li>Free core CLI; $39 templates</li>
           </ul>
         </div>
         <figure class="observatory">
@@ -113,7 +126,7 @@
           <p class="price"><span>$39</span> USD</p>
           <p class="once">One-time purchase · updates included</p>
           <ul><li>Weekly rehearsal runbook</li><li>Failure review agenda</li><li>RTO decision log template</li><li>Six service profile worksheets</li></ul>
-          <a id="buy-link" class="button primary wide" href="https://pilot-api.sociobot.in/api/v1/products/restore-rehearsal-card/checkout">Get the Operator Pack</a>
+          <a id="buy-link" class="button primary wide" href="https://api.sociobot.in/api/v1/products/restore-rehearsal-card/checkout">Get the Operator Pack</a>
           <details class="restore-license">
             <summary>Have a license? Restore purchase</summary>
             <form id="license-form" novalidate>
@@ -129,14 +142,15 @@
             <button class="button secondary wide" type="button" data-kit="decision-log">Download RTO decision log</button>
             <button class="button secondary wide" type="button" data-kit="review-pack">Download review &amp; service profiles</button>
           </div>
-          <p class="merchant-note">Checkout and refunds are handled by Sociobot/Dodo, the merchant of record. <a href="/terms/">Terms</a> · <a href="/privacy/">Privacy</a></p>
+          <p class="merchant-note">Checkout and refunds are handled by Sociobot/Dodo, the merchant of record.</p>
+          <p class="merchant-links"><a class="text-link" href="/terms/">Terms</a><a class="text-link" href="/privacy/">Privacy</a></p>
         </div>
       </section>
 
       <section class="closing section-shell" aria-labelledby="closing-title"><p class="eyebrow">The useful artifact</p><h2 id="closing-title">A backup is a promise.<br /><em>A rehearsal is evidence.</em></h2><a class="button primary" href="#install">Start with the free CLI</a></section>
     </main>
 
-    <footer><a class="brand small" href="/"><svg viewBox="0 0 34 34" aria-hidden="true"><path d="M17 2 29 9v16l-12 7L5 25V9Z"/><path d="m10 17 5 5 9-11"/></svg><span>Restore Rehearsal Card</span></a><p>Local evidence for recovery operators.</p><nav aria-label="Footer navigation"><a href="https://github.com/B-Divyesh/sf-restore-rehearsal-card">Source</a><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a></nav></footer>
+    <footer><a class="brand small" href="/"><svg viewBox="0 0 34 34" aria-hidden="true"><path d="M17 2 29 9v16l-12 7L5 25V9Z"/><path d="m10 17 5 5 9-11"/></svg><span>Restore Rehearsal Card</span></a><p>Local evidence for recovery operators. Built by Param Factory · v0.1.0</p><nav aria-label="Footer navigation"><a href="https://github.com/B-Divyesh/sf-restore-rehearsal-card">Source</a><a href="/demo/">Demo</a><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a></nav></footer>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>

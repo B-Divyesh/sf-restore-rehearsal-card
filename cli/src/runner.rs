@@ -414,17 +414,48 @@ fn execute(program: &str, args: &[String], timeout_seconds: u64) -> Result<Outpu
         .stderr(Stdio::piped())
         .spawn()
         .map_err(|e| format!("could not start {program}: {e}"))?;
+    // Drain both streams while the child is running. Waiting first can deadlock
+    // a verbose restore tool once either OS pipe buffer fills.
+    let stdout = child
+        .stdout
+        .take()
+        .ok_or_else(|| format!("could not capture {program} stdout"))?;
+    let stderr = child
+        .stderr
+        .take()
+        .ok_or_else(|| format!("could not capture {program} stderr"))?;
+    let stdout_reader = std::thread::spawn(move || {
+        let mut bytes = Vec::new();
+        let mut stream = stdout;
+        stream.read_to_end(&mut bytes).map(|_| bytes)
+    });
+    let stderr_reader = std::thread::spawn(move || {
+        let mut bytes = Vec::new();
+        let mut stream = stderr;
+        stream.read_to_end(&mut bytes).map(|_| bytes)
+    });
     let status = child
         .wait_timeout(Duration::from_secs(timeout_seconds))
         .map_err(|e| format!("could not wait for {program}: {e}"))?;
     if status.is_none() {
         let _ = child.kill();
         let _ = child.wait();
+        let _ = stdout_reader.join();
+        let _ = stderr_reader.join();
         return Err(format!("operation timed out after {timeout_seconds}s"));
     }
-    child
-        .wait_with_output()
-        .map_err(|e| format!("could not collect {program} status: {e}"))
+    let status = child
+        .wait()
+        .map_err(|e| format!("could not collect {program} status: {e}"))?;
+    let stdout = stdout_reader
+        .join()
+        .map_err(|_| format!("could not collect {program} stdout"))?
+        .map_err(|e| format!("could not collect {program} stdout: {e}"))?;
+    let stderr = stderr_reader
+        .join()
+        .map_err(|_| format!("could not collect {program} stderr"))?
+        .map_err(|e| format!("could not collect {program} stderr: {e}"))?;
+    Ok(Output { status, stdout, stderr })
 }
 
 fn exit_label(output: &Output) -> String {

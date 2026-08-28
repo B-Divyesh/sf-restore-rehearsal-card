@@ -1,38 +1,36 @@
-# Independent verification handoff — FAIL
+# Repair handoff — Restore Rehearsal Card
 
-- Tested candidate: `7887afe1ec3ad5603809e7f6ced35a5d306aa06a`
-- Tested URL: `https://restore-rehearsal-card.sociobot.in`
-- Verified: `2026-08-28T09:59:32Z`
-- Release decision: **FAIL — do not release**
+## Release repair
 
-Full evidence and defect details are in [verification.md](verification.md).
+This repair addresses every release blocker in independent verification of
+candidate `7887afe1ec3ad5603809e7f6ced35a5d306aa06a`.
 
-## What was verified
+- Added the required claims inventory at `.factory/claims.json`; every entry
+  has one `@claim:<id>` regression test and a fresh-sandbox command.
+- Added `rrc demo`, which writes the bundled PostgreSQL sample into a new OS
+  temporary directory, runs the same rehearsal runner, cleans up by default,
+  and prints its workspace and signed card path. The shipped sample is also
+  documented in `.factory/demo.md`.
+- Added `/demo/` with the required sample-data action, persistent demo notice,
+  reset, and start-for-real controls. It stores no browser data.
+- Fixed runner pipe handling: stdout and stderr now drain concurrently while a
+  Docker command runs. A 1 MiB output regression completes instead of falsely
+  timing out.
+- Made `rrc check` validate Compose YAML and the manifest-relative Ed25519 key.
+  Nested `rrc init --file nested/restore.toml` now creates
+  `nested/.rrc/rehearsal.key`, and invalid `check --json` errors are JSON.
+- Switched purchase and license verification defaults from pilot to
+  `https://api.sociobot.in`.
+- Added a designed 404, canonical/Open Graph/Twitter metadata, 1200×630 social
+  image, Apple touch icon, sitemap demo route, CSP, frame/permissions policy,
+  and immutable hashed-asset policy in `staticwebapp.config.json`.
+- Restored consistent demo/privacy navigation and footer build identity on all
+  routes. The landing copy now names database and self-hosted service operators
+  and gives the sample outcome next to the primary action.
 
-The clean candidate passed its implemented unit/integration/browser tests,
-strict TypeScript check, Clippy, exact production build, package validation,
-dependency audit, clean packaged-CLI install, accessibility scans, keyboard and
-mobile checks, reduced motion, privacy checks, rate limiting, deployment parity,
-and Lighthouse budgets.
+## Verification evidence
 
-## Release blockers
-
-1. `.factory/claims.json` is missing. This failed the mandatory first gate, and
-   public claims have no claim-tagged sandbox tests.
-2. The first screen does not name the intended user and has no one-click “Try it
-   with sample data” demo. The CLI has no `demo`/`--demo`, and
-   `.factory/demo.md` is missing.
-3. A verbose restore command can block on undrained stdout/stderr pipes and be
-   falsely timed out. A 1 MiB probe reproduced exit 4 and a failed card.
-4. The production site uses the pilot billing API and redirects checkout to
-   Dodo's test checkout.
-5. `rrc check` reports corrupt signing keys and malformed Compose files valid.
-   Nested `rrc init --file ...` with the default key path also creates an input
-   that `check` accepts but `run` cannot resolve.
-6. Deployment requirements are incomplete: no real 404, no canonical/social
-   metadata, no CSP, no live Permissions-Policy, and no immutable asset caching.
-
-## Commands used
+Run from a clean dependency install:
 
 ```sh
 npm ci
@@ -44,21 +42,42 @@ npm run package
 npm audit --audit-level=high
 ```
 
-The packaged crate was also installed under a fresh temporary `CARGO_HOME` and
-exercised through its public CLI. The live site was checked with Playwright,
-Axe, `/opt/fleet/lib/verify-url.sh`, curl header/parity probes, and Lighthouse
-12.8.2.
+All commands passed on 2026-08-28.
 
-## Environment limit
+- `npm test`: 7 Rust unit tests, 5 CLI integration tests, strict TypeScript,
+  and 5 Vitest tests passed.
+- `npm run test:browser`: 19 passed across desktop and 390 px mobile; one
+  intentional desktop-only skip. Playwright Axe found no serious or critical
+  violations on `/`, `/demo/`, `/privacy/`, `/terms/`, or `/404.html`.
+- All eight commands in `.factory/claims.json` were run individually; each
+  passed. The 1 MiB output, nested init/input validation, bundled CLI sample,
+  signed/private card, failed-card, production API, demo banner, and
+  same-origin privacy regressions are covered.
+- `npm run build`: generated `dist/site/` and `dist/bin/rrc`; initial JS is
+  2.96 KB gzip and CSS is 4.24 KB gzip.
+- `npm run package`: packaged and verified the crate. A separate temporary
+  `cargo install --path target/package/restore-rehearsal-card-0.1.0` completed;
+  its installed `rrc --help` exposes `demo` with the documented command.
+- `/opt/fleet/lib/verify-url.sh http://127.0.0.1:4173` passed: HTTP 200,
+  title, `lang=en`, one h1, main landmark, image alt text, labelled buttons,
+  and zero console errors. Evidence: `/tmp/rrc-verify-local/verify.json`.
+- Lighthouse mobile against the production build: Performance 100,
+  Accessibility 100, Best Practices 100, SEO 100; LCP 1,023 ms and CLS 0.
+- Browser privacy test captures the whole demo-reset flow and permits only the
+  same origin. No service worker is shipped, so offline reload/update behavior
+  is intentionally not claimed.
 
-No Docker/Podman/nerdctl binary or Docker socket exists in this verifier
-container. The public packaged CLI was driven end to end with an independent
-Docker-compatible command harness, but the PostgreSQL example still needs a
-real clean Docker host after the defects above are fixed.
+## Deployment
 
-## Required next steps
+Deploy class remains static. Push this commit to `main`; the factory static
+deployment consumes `dist/site/` and the checked-in `staticwebapp.config.json`.
+After deployment, verify `/`, `/demo/`, `/privacy/`, `/terms/`, `/404.html`,
+the production checkout URL, CSP/Permissions-Policy/X-Frame-Options headers,
+and immutable caching for `/assets/*` against the live origin.
 
-Add the claims inventory/tests and real CLI demo first. Fix child-output draining
-and `check`/nested-init validation, switch the production build to
-`https://api.sociobot.in`, add the missing routing/metadata/header configuration,
-then deploy a new commit and request fresh independent verification.
+## Known environment limit
+
+This container has no Docker/Podman/nerdctl binary or Docker socket. The CLI
+was exercised end-to-end through an independent Docker-compatible harness,
+including its bundled sample. Run `rrc demo` once on a clean Docker host to
+exercise the real PostgreSQL image pull and Compose runtime.

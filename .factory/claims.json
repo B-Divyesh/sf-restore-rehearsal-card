@@ -1,0 +1,65 @@
+[
+  {
+    "id": "sample-cli-demo",
+    "claim": "Runs a bundled PostgreSQL sample with rrc demo",
+    "where": "landing page, demo page, README",
+    "test": "cargo test --test e2e bundled_demo_runs_the_shipped_sample_in_a_temp_workspace",
+    "sandbox": "fresh temp directory with a Docker-compatible harness; assert the shipped sample runs and reports its workspace and signed-card path"
+  },
+  {
+    "id": "large-command-output",
+    "claim": "Verbose restore commands do not falsely time out from full output pipes",
+    "where": "release behavior",
+    "test": "cargo test --test e2e verbose_command_output_does_not_deadlock_the_rehearsal",
+    "sandbox": "fresh manifest and Docker-compatible harness whose declared command emits 1 MiB before exiting 0"
+  },
+  {
+    "id": "check-local-inputs",
+    "claim": "Check validates local signing keys and Compose files before a run",
+    "where": "rrc check help, README",
+    "test": "cargo test --test e2e check_rejects_corrupt_inputs_and_nested_init_creates_a_runnable_manifest",
+    "sandbox": "fresh nested init output, malformed YAML, and corrupt key; assert JSON validation failures and a manifest-relative default key"
+  },
+  {
+    "id": "signed-private-card",
+    "claim": "A passed drill writes a signed card without restored records",
+    "where": "landing page, README",
+    "test": "cargo test --test e2e passing_run_emits_a_private_signed_card",
+    "sandbox": "fresh declared rehearsal against a Docker-compatible harness; verify the signature and assert a private backup value is absent"
+  },
+  {
+    "id": "failed-drill-card",
+    "claim": "A failed check still writes a signed failed card",
+    "where": "landing page, README",
+    "test": "cargo test --test e2e broken_check_exits_four_and_still_emits_valid_evidence",
+    "sandbox": "fresh declared rehearsal with an intentionally failing check; assert exit 4 and verify the card signature"
+  },
+  {
+    "id": "sample-demo-route",
+    "claim": "The demo page uses sample data and offers reset and start-for-real controls",
+    "where": "landing hero, /demo",
+    "test": "npm run test:browser -- --grep @claim:sample-demo-route",
+    "sandbox": "fresh browser context at /demo; reset the demo and assert its fresh-state message and real-start link"
+  },
+  {
+    "id": "site-no-analytics",
+    "claim": "The sample page makes no third-party analytics requests",
+    "where": "landing privacy fact, privacy page",
+    "test": "npm run test:browser -- --grep @claim:site-no-analytics",
+    "sandbox": "fresh browser context through the demo reset flow; assert every observed request is same-origin"
+  },
+  {
+    "id": "production-checkout",
+    "claim": "The Operator Pack checkout uses the production Sociobot endpoint",
+    "where": "Operator Pack purchase button",
+    "test": "npm run test:browser -- --grep @claim:production-checkout",
+    "sandbox": "fresh browser context; assert the observable checkout link is the production Sociobot product endpoint"
+  },
+  {
+    "id": "production-license-verification",
+    "claim": "License verification defaults to the production Sociobot API",
+    "where": "privacy page, license flow",
+    "test": "npx vitest run --config site/vitest.config.ts -t @claim:production-license-verification",
+    "sandbox": "mock fetch from a clean storage state; assert the product-specific production verification URL"
+  }
+]

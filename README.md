@@ -23,7 +23,14 @@ when building from source.
 
 ## Usage
 
-Create a starter manifest and a local signing key:
+Try the shipped PostgreSQL sample first. It creates a new temporary workspace,
+starts its declared disposable Compose target, and prints the signed card path:
+
+```sh
+rrc demo
+```
+
+Then create a starter manifest and a local signing key:
 
 ```sh
 rrc init --file restore-rehearsal.toml --signing-key .rrc/rehearsal.key
@@ -92,7 +99,11 @@ npm run package          # cargo package validation
 
 `npm run build` produces the deployable documentation site at `dist/site/` and
 release binaries at `dist/bin/`. The project does not publish from local builds;
-the factory owns registry and release credentials.
+the factory owns registry and release credentials. The static site deploys from
+`dist/site/`; its `staticwebapp.config.json` supplies security and cache policy.
+
+See [`.factory/demo.md`](.factory/demo.md) for the sample sandbox and
+[`.factory/claims.json`](.factory/claims.json) for every tested public claim.
 
 ## Privacy and purchase
 

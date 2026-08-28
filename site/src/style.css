@@ -53,6 +53,7 @@ h2 { font-size: clamp(2.7rem, 5vw, 4.5rem); }
 h3 { margin: 0 0 8px; font-size: 1.2rem; line-height: 1.25; }
 .lede { max-width: 590px; margin: 28px 0 32px; color: var(--mist); font-size: 1.12rem; line-height: 1.65; }
 .hero-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 20px; }
+.action-note { max-width: 26ch; color: var(--mist); font-size: .82rem; line-height: 1.4; }
 .button { display: inline-flex; min-height: 48px; padding: 0 21px; align-items: center; justify-content: center; border: 1px solid transparent; border-radius: 2px 13px 2px 13px; cursor: pointer; font-weight: 800; text-decoration: none; transition: transform 180ms ease, background-color 180ms ease, border-color 180ms ease; }
 .button:hover { transform: translateY(-2px); }
 .button:active { transform: translateY(1px); }
@@ -126,6 +127,18 @@ input[aria-invalid="true"] { border-color: var(--flare); }
 .operator-downloads { margin: 16px 0; padding: 18px; border: 1px solid rgba(168,255,207,.25); background: rgba(168,255,207,.06); }
 .operator-downloads .button { margin-top: 10px; }
 .merchant-note { margin: 20px 0 0; }
+.merchant-links { display: flex; flex-wrap: wrap; gap: 8px; margin: 4px 0 0; }
+.merchant-links .text-link { padding-inline: 8px; }
+.demo-banner { position: sticky; top: 0; z-index: 4; display: flex; align-items: center; justify-content: center; gap: 12px; min-height: 56px; padding: 8px 24px; color: var(--chalk); border-block: 1px solid rgba(168,255,207,.36); background: rgba(7,17,15,.94); backdrop-filter: blur(12px); font-size: .86rem; }
+.demo-banner p { margin: 0; }
+.demo-banner .button { min-height: 40px; padding-inline: 12px; font-size: .78rem; }
+.demo-page { max-width: 840px; margin: 0 auto; padding: 88px 24px 112px; }
+.demo-page h1, .not-found h1 { max-width: 760px; font-size: clamp(3rem, 8vw, 5.2rem); }
+.demo-page > p, .not-found > p { max-width: 62ch; color: var(--mist); font-size: 1.08rem; }
+.sample-command { margin-top: 40px; padding: 28px; border: 1px solid var(--line); border-radius: 4px 22px 4px 22px; background: var(--basin); }
+.sample-command pre { margin: 20px 0; color: var(--chalk); }
+.sample-state { min-height: 1.5em; color: var(--signal); }
+.not-found { max-width: 760px; min-height: calc(100vh - 232px); margin: 0 auto; padding: 112px 24px; }
 .closing { padding-block: 144px; text-align: center; }
 .closing h2 { margin-bottom: 40px; }
 footer { min-height: 160px; padding: 40px max(24px, calc((100vw - 1180px)/2)); display: flex; align-items: center; justify-content: space-between; gap: 24px; border-top: 1px solid var(--line); color: var(--mist); }
@@ -152,13 +165,16 @@ footer { min-height: 160px; padding: 40px max(24px, calc((100vw - 1180px)/2)); d
 
 @media (max-width: 640px) {
   .site-header { padding-inline: 16px; }
-  .site-header nav a:not(:last-child) { display: none; }
+  .site-header nav .optional-nav { display: none; }
   .brand span { max-width: 190px; font-size: .88rem; }
   .hero { padding: 64px 20px 44px; }
   h1 { font-size: clamp(3rem, 15vw, 4.2rem); }
   .lede { font-size: 1rem; }
   .hero-actions { align-items: stretch; flex-direction: column; }
   .hero-actions .button, .hero-actions .text-link { justify-content: center; }
+  .action-note { max-width: none; text-align: center; }
+  .demo-banner { align-items: stretch; flex-direction: column; padding-inline: 16px; text-align: center; }
+  .demo-banner .button { justify-content: center; }
   .observatory { width: 128%; margin-left: -14%; }
   .observatory figcaption { display: none; }
   .signal-band { align-items: flex-start; flex-direction: column; }

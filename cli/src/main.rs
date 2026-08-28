@@ -5,6 +5,7 @@ use serde_json::json;
 use std::fs;
 use std::path::{Path, PathBuf};
 use std::process::ExitCode;
+use std::time::{SystemTime, UNIX_EPOCH};
 
 #[derive(Debug, Parser)]
 #[command(
@@ -65,13 +66,25 @@ enum Commands {
         #[arg(short, long)]
         output: PathBuf,
     },
+    /// Run the bundled PostgreSQL sample in a disposable temporary directory
+    Demo {
+        /// Keep the isolated Compose target for local inspection
+        #[arg(long)]
+        keep_target: bool,
+    },
 }
 
 fn main() -> ExitCode {
-    match execute(Cli::parse()) {
+    let cli = Cli::parse();
+    let json_errors = matches!(&cli.command, Commands::Check { json: true, .. });
+    match execute(cli) {
         Ok(()) => ExitCode::SUCCESS,
         Err((code, message)) => {
-            eprintln!("rrc: {message}");
+            if json_errors {
+                println!("{}", json!({"valid": false, "error": message}));
+            } else {
+                eprintln!("rrc: {message}");
+            }
             ExitCode::from(code)
         }
     }
@@ -86,8 +99,9 @@ fn execute(cli: Cli) -> Result<(), (u8, String)> {
                     format!("refusing to overwrite manifest: {}", file.display()),
                 ));
             }
-            write_new_key(&signing_key).map_err(|error| (2, error))?;
-            let key_reference = relative_key_reference(&file, &signing_key);
+            let resolved_key = resolve_from_manifest(&file, &signing_key);
+            write_new_key(&resolved_key).map_err(|error| (2, error))?;
+            let key_reference = relative_key_reference(&file, &resolved_key);
             let source = starter_manifest(&key_reference);
             if let Some(parent) = file.parent() {
                 fs::create_dir_all(parent)
@@ -98,7 +112,7 @@ fn execute(cli: Cli) -> Result<(), (u8, String)> {
             println!(
                 "Created {} and {}. Edit the manifest, then run `rrc check`.",
                 file.display(),
-                signing_key.display()
+                resolved_key.display()
             );
         }
         Commands::Check { file, json } => {
@@ -188,8 +202,50 @@ fn execute(cli: Cli) -> Result<(), (u8, String)> {
                 output.display()
             );
         }
+        Commands::Demo { keep_target } => run_demo(keep_target)?,
     }
     Ok(())
+}
+
+fn run_demo(keep_target: bool) -> Result<(), (u8, String)> {
+    let unique = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .map_err(|e| (4, format!("could not create demo workspace: {e}")))?
+        .as_nanos();
+    let workspace = std::env::temp_dir().join(format!("rrc-demo-{}-{unique}", std::process::id()));
+    fs::create_dir_all(&workspace)
+        .map_err(|e| (4, format!("could not create demo workspace {}: {e}", workspace.display())))?;
+    fs::write(workspace.join("rehearsal.compose.yml"), include_str!("../assets/demo/rehearsal.compose.yml"))
+        .map_err(|e| (4, format!("could not write bundled demo Compose file: {e}")))?;
+    fs::write(workspace.join("sample-backup.sql"), include_str!("../assets/demo/sample-backup.sql"))
+        .map_err(|e| (4, format!("could not write bundled demo backup: {e}")))?;
+    let manifest_path = workspace.join("restore-rehearsal.toml");
+    fs::write(&manifest_path, include_str!("../assets/demo/restore-rehearsal.toml"))
+        .map_err(|e| (4, format!("could not write bundled demo manifest: {e}")))?;
+    let key_path = workspace.join(".rrc/rehearsal.key");
+    write_new_key(&key_path).map_err(|error| (4, error))?;
+    let manifest = load_manifest(&manifest_path).map_err(|error| (2, error))?;
+    let card = workspace.join("restore-card.md");
+    let options = RunOptions {
+        manifest_path: manifest_path.clone(),
+        confirm_target: manifest.compose.project.clone(),
+        output_path: card.clone(),
+        keep_target,
+    };
+    let result = run_rehearsal(&manifest, &options).map_err(|error| (4, error))?;
+    println!("Sample rehearsal {}. Workspace: {}. Card: {}", if result.passed { "passed" } else { "failed" }, workspace.display(), card.display());
+    if !result.passed {
+        return Err((4, "sample rehearsal failed; inspect the signed card".into()));
+    }
+    Ok(())
+}
+
+fn resolve_from_manifest(manifest: &Path, path: &Path) -> PathBuf {
+    if path.is_absolute() {
+        path.to_path_buf()
+    } else {
+        manifest.parent().unwrap_or_else(|| Path::new(".")).join(path)
+    }
 }
 
 fn relative_key_reference(manifest: &Path, key: &Path) -> String {

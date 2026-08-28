@@ -31,4 +31,14 @@ describe('license handling', () => {
     await requestVerdict('a+b&c', fetcher as typeof fetch, 'https://billing.test');
     expect(requested).toBe('https://billing.test/api/v1/products/restore-rehearsal-card/verify?license=a%2Bb%26c');
   });
+
+  it('@claim:production-license-verification defaults to the production Sociobot API', async () => {
+    let requested = '';
+    const fetcher = vi.fn(async (input: string | URL | Request) => {
+      requested = String(input);
+      return new Response(JSON.stringify({ valid: true, reason: 'ok', expires_at: null }), { status: 200 });
+    });
+    await requestVerdict('production-token', fetcher as typeof fetch);
+    expect(requested).toBe('https://api.sociobot.in/api/v1/products/restore-rehearsal-card/verify?license=production-token');
+  });
 });
