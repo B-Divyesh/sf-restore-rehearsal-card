@@ -1,0 +1,11 @@
+{
+  "slug": "restore-rehearsal-card",
+  "title": "Restore Rehearsal Card",
+  "territory": "devtools-data",
+  "user": "An operator of a managed database or self-hosted service who needs a repeatable, auditable answer to whether a backup can actually restore into a usable service.",
+  "smallest_useful_product": "A local CLI that runs declared restore steps into an isolated Docker/compose target, executes health and row-count assertions, records timings/checksums, and emits a signed Markdown card.",
+  "success_measure": "A pilot completes a weekly restore rehearsal with a documented RTO and catches one intentionally broken restore step before an incident.",
+  "artifact_class": "cli",
+  "monetization": "one-time",
+  "constraints": "Use isolated networks and non-production credentials; never emit restored data in reports; support only declared safe commands and explicit destructive-target confirmation."
+}
