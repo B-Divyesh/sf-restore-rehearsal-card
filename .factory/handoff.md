@@ -69,11 +69,23 @@ All commands passed on 2026-08-28.
 
 ## Deployment
 
-Deploy class remains static. Push this commit to `main`; the factory static
-deployment consumes `dist/site/` and the checked-in `staticwebapp.config.json`.
-After deployment, verify `/`, `/demo/`, `/privacy/`, `/terms/`, `/404.html`,
-the production checkout URL, CSP/Permissions-Policy/X-Frame-Options headers,
-and immutable caching for `/assets/*` against the live origin.
+Repair commit `0459a32` was pushed to `main` and deployed as a static site on
+2026-08-28 (Azure deployment `ba81868f-c032-4886-954f-68006d33e72c`). The
+live origin is https://restore-rehearsal-card.sociobot.in.
+
+Live checks passed after deployment:
+
+- `/` contains **Try it with sample data** and the production Sociobot checkout
+  URL; no `pilot-api` string remains.
+- `/demo/`, `/privacy/`, `/terms/`, and `/404.html` return 200. An unknown path
+  returns 404 and the styled recovery-path page.
+- `/opt/fleet/lib/verify-url.sh` passed against the live origin in 646 ms with
+  zero console errors, `lang=en`, one h1, a main landmark, valid image alt
+  text, and labelled buttons. Evidence:
+  `/tmp/rrc-live-verify-repair/verify.json`.
+- Live HTML sends CSP, Permissions-Policy, X-Frame-Options, Referrer-Policy,
+  and X-Content-Type-Options. The deployed hashed JavaScript returns
+  `Cache-Control: public, max-age=31536000, immutable`.
 
 ## Known environment limit
 
