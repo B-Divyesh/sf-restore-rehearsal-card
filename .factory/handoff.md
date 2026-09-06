@@ -1,3 +1,35 @@
+# Verification 3 handoff — FAIL
+
+Independent verification reviewed implementation
+`3664b099f09bb0b7b625d775fbe106c5c1fe5eb6`, documentation
+`6d8866c3113bd1ad19ad961ce81f01e7893f2021`, and deployment
+`5d2b65d2-16ce-4056-83e5-ae5edcce576a`.
+
+- Verdict: **FAIL — do not release**
+- Findings: **1**
+- Untested claims: **1**
+- Full report: `.factory/verification-3.md`
+- Product code changed: no
+
+All 15 declared claim commands exited 0, and the full test, browser, format,
+lint, build, package, and audit gates pass. Live candidate parity, desktop and
+phone behavior, accessibility, privacy, license handling, rate limiting,
+routes, 404 behavior, headers, and performance also pass.
+
+The remaining blocker is the real one-command CLI demo. It starts Compose with
+`--pull never`, while the documented setup does not preload
+`postgres:17-alpine`. A clean Docker cache therefore returns `No such image`.
+The passing claim command uses a Docker-compatible harness and never starts
+PostgreSQL. This verifier installed Docker and Compose and attempted the real
+sample, but the worker lacks the kernel capability to create the sample's
+internal bridge network. The real PostgreSQL restore remains untested.
+
+Required next step: make `rrc demo` acquire or otherwise provide its fixed
+sample image, then run the clean-installed artifact on a capable Docker host
+and verify the real row, health, cleanup, card, and signature.
+
+---
+
 # Repair handoff — Restore Rehearsal Card
 
 ## Release status
