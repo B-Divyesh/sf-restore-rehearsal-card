@@ -4,16 +4,16 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#07110f" />
-    <meta name="description" content="Run Restore Rehearsal Card’s bundled PostgreSQL sample in an isolated temporary workspace." />
+    <meta name="description" content="Preview the bundled PostgreSQL restore sample and run it in a new temporary workspace." />
     <link rel="canonical" href="https://restore-rehearsal-card.sociobot.in/demo/" />
     <meta property="og:type" content="website" />
     <meta property="og:title" content="Demo — Restore Rehearsal Card" />
-    <meta property="og:description" content="Run the bundled PostgreSQL restore sample in an isolated workspace." />
+    <meta property="og:description" content="Preview the bundled PostgreSQL restore sample and its signed card." />
     <meta property="og:url" content="https://restore-rehearsal-card.sociobot.in/demo/" />
     <meta property="og:image" content="https://restore-rehearsal-card.sociobot.in/recovery-observatory-social.webp" />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="Demo — Restore Rehearsal Card" />
-    <meta name="twitter:description" content="Run the bundled PostgreSQL restore sample in an isolated workspace." />
+    <meta name="twitter:description" content="Preview the bundled PostgreSQL restore sample and its signed card." />
     <meta name="twitter:image" content="https://restore-rehearsal-card.sociobot.in/recovery-observatory-social.webp" />
     <title>Demo — Restore Rehearsal Card</title>
     <link rel="icon" href="/mark.svg" type="image/svg+xml" />
@@ -27,20 +27,34 @@
     </header>
     <aside class="demo-banner" aria-label="Demo mode"><p><strong>Demo — sample data, nothing is saved.</strong> The CLI creates a new temporary workspace each run.</p><button id="reset-demo" class="button secondary" type="button">Reset demo</button><a class="button primary" href="/#install">Start for real</a></aside>
     <main id="main" class="demo-page">
-      <p class="eyebrow">Shipped PostgreSQL sample</p>
-      <h1>Run a sample restore drill.</h1>
-      <p>This exact command writes a sample backup, Compose file, key, and signed card to a new temporary directory.</p>
+      <p class="eyebrow">Bundled PostgreSQL sample</p>
+      <h1>Preview a sample restore drill</h1>
+      <p>The sample restores one probe row, checks PostgreSQL, and writes a signed card.</p>
+      <section class="sample-command sample-result" aria-labelledby="sample-result-title">
+        <h2 id="sample-result-title">Sample signed card</h2>
+        <p class="sample-label">Demo output from bundled sample</p>
+        <dl id="sample-output">
+          <div><dt>Result</dt><dd>PASS</dd></div>
+          <div><dt>Target</dt><dd><code>rrc-postgres-demo</code></dd></div>
+          <div><dt>Backup</dt><dd>152 bytes · SHA-256 <code>f865…a721</code></dd></div>
+          <div><dt>Service</dt><dd>healthy</dd></div>
+          <div><dt>Row count</dt><dd>1 · expected 1</dd></div>
+          <div><dt>RTO</dt><dd>met</dd></div>
+          <div><dt>Signature</dt><dd>Ed25519 valid</dd></div>
+        </dl>
+        <p>Restored row values and command output are omitted.</p>
+      </section>
       <section class="sample-command" aria-labelledby="sample-command-title">
-        <h2 id="sample-command-title">Use the bundled sample</h2>
+        <h2 id="sample-command-title">Run the sample locally</h2>
         <pre id="demo-command"><code>$ rrc demo</code></pre>
         <button class="button primary" type="button" data-copy-target="demo-command"><span>Copy demo command</span></button>
         <p class="copy-status" role="status" aria-live="polite"></p>
-        <p class="sample-state" id="demo-state" role="status">The sample starts PostgreSQL, restores one probe row, checks health and count, cleans up, and prints the card path.</p>
+        <p class="sample-state" id="demo-state" role="status">The command creates a temporary workspace, runs the checks, cleans up Docker, and prints the signed card path.</p>
       </section>
       <section class="sample-command" aria-labelledby="sample-contents-title">
         <h2 id="sample-contents-title">What the sample includes</h2>
         <ul><li>One PostgreSQL Compose service with a health check.</li><li>One SQL backup containing a non-sensitive probe row.</li><li>One exact row-count assertion and an Ed25519-signed card.</li></ul>
-        <p>It uses Docker locally. It never reads your manifests or writes browser storage.</p>
+        <p>It uses Docker locally. It does not read your manifests or change browser storage.</p>
       </section>
     </main>
     <footer><a class="brand small" href="/"><svg viewBox="0 0 34 34" aria-hidden="true"><path d="M17 2 29 9v16l-12 7L5 25V9Z"/><path d="m10 17 5 5 9-11"/></svg><span>Restore Rehearsal Card</span></a><p>Local evidence for recovery operators. Built by Param Factory · v0.1.0</p><nav aria-label="Footer navigation"><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a></nav></footer>

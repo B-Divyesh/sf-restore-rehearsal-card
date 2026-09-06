@@ -38,11 +38,15 @@ stdout, stderr, container IDs, credentials, filenames, or restored records.
 
 ## Isolation and cleanup
 
-Before starting, `rrc` asks Docker Compose for the fully resolved JSON model and
-refuses host networking, privileged containers, host bind mounts, and external
-networks or volumes. The exact project name must be passed through
-`--confirm-target`; CI never receives an interactive prompt. On completion or a
-failed step, `docker compose down --volumes --remove-orphans` runs by default.
+Before starting, `rrc` asks Docker Compose for the fully resolved JSON model.
+It refuses host or external namespaces, bind mounts, added capabilities,
+devices, published ports, Docker API access, unconfined security settings,
+privileged services, and external networks or volumes. Named networks and
+volumes must remain scoped to the declared Compose project.
+
+The exact project name must be passed through `--confirm-target`. CI never
+receives an interactive prompt. On completion or a failed step,
+`docker compose down --volumes --remove-orphans` runs by default.
 
 Use dedicated non-production credentials in the Compose file. Do not reference
 provider production secrets or Docker contexts pointed at production hosts.

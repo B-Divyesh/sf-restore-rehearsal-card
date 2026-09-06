@@ -3,6 +3,14 @@
 All notable changes follow [Keep a Changelog](https://keepachangelog.com/) and
 this project uses semantic versioning.
 
+## [Unreleased]
+
+### Fixed
+
+- Reject host PID and other host/external Compose access before target startup.
+- Return one JSON object for failed `rrc run --json` results.
+- Verify the installed sample, runtime network privacy, and public paid offer.
+
 ## [0.1.0] - 2026-08-28
 
 ### Added

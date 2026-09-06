@@ -1,57 +1,78 @@
 # Landing copy audit
 
-Audited route: `/` on 28 August 2026. Headings, actions, facts, labels, and
-visible prose are listed below. Word counts treat hyphenated terms as one word.
-No landing sentence exceeds 22 words and no banned marketing term appears.
+Audited route: `/` on 6 September 2026. The table includes visible headings,
+actions, facts, labels, and prose. Hyphenated terms count as one word. No item
+exceeds 22 words. No banned marketing word appears.
 
 | Copy | Words | Flag |
 | --- | ---: | --- |
-| Local recovery evidence | 3 | — |
+| Restore tests for operators | 4 | — |
 | Test your backup before an incident. | 6 | — |
-| For database and self-hosted service operators who need proof a backup restores into a usable service. | 15 | — |
+| For database and self-hosted service operators who need proof a backup restores into a usable service. | 16 | — |
 | Try it with sample data | 5 | — |
 | Opens the shipped PostgreSQL sample and its exact CLI command. | 10 | — |
 | Read the source | 3 | — |
 | Local CLI; no telemetry | 4 | — |
-| Sample runs after install | 4 | — |
-| Free core CLI; $39 templates | 5 | — |
-| Not “backup completed.” | 3 | — |
-| “Service healthy. | 2 | — |
-| 18,402 rows. | 2 | — |
-| RTO met. | 2 | — |
-| Signature valid.” | 2 | — |
-| Every operation is explicit, timed, and contained. | 7 | — |
-| A failure creates evidence too. | 5 | — |
-| Record SHA-256 and byte count without opening backup contents in the report. | 11 | — |
-| Refuse host networking, bind mounts, external volumes, privileged services, and production-like targets. | 11 | — |
-| Check container health, exact row-count ranges, and declared exit codes—not just process completion. | 12 | — |
-| Write a portable Markdown card with timings, checks, RTO outcome, and an embedded Ed25519 signature. | 15 | — |
-| A small binary, no agent | 5 | — |
-| Your weekly drill in three commands. | 6 | — |
+| No account required | 3 | — |
+| Free CLI; $39 team templates | 5 | — |
+| The signed card records: | 4 | — |
+| service health, row count, RTO result, and signature status. | 9 | — |
+| Four declared stages | 3 | — |
+| How it works | 3 | — |
+| The manifest names each operation. | 5 | — |
+| The card records the result of each stage. | 8 | — |
+| Hash the backup | 3 | — |
+| Record its SHA-256 checksum and byte count. | 7 | — |
+| Do not put backup contents in the card. | 8 | — |
+| Check target isolation | 3 | — |
+| Refuse host namespaces, bind mounts, external resources, added capabilities, devices, published ports, and privileged services. | 15 | — |
+| Run declared checks | 3 | — |
+| Check container health, row-count ranges, and command exit codes. | 9 | — |
+| Write the signed card | 4 | — |
+| Record timings, checks, the RTO result, and an Ed25519 signature in Markdown. | 12 | — |
+| One local binary | 3 | — |
+| Install and run the CLI | 5 | — |
 | Requires Docker Compose. | 3 | — |
 | The CLI itself never phones home. | 6 | — |
-| A passing run, line by line. | 6 | — |
-| No Docker needed to preview the operator flow. | 8 | — |
-| Failure is a result | 4 | — |
-| Break the restore now. | 5 | — |
-| Not during the incident. | 4 | — |
-| A bad checksum, failed command, unhealthy service, missed count, or breached RTO produces a signed failed card and exit code 4 for CI. | 21 | — |
-| Cleanup still runs. | 3 | — |
-| The CLI stays free. | 4 | — |
-| The meeting gets sharper. | 4 | — |
-| The Operator Pack adds reusable review material for teams that need a consistent recovery ritual. | 15 | — |
-| It never gates cards, verification, export, accessibility, or safety. | 9 | — |
-| One-time purchase; updates included | 4 | — |
-| Checkout and refunds are handled by Sociobot/Dodo, the merchant of record. | 10 | — |
-| A backup is a promise. | 5 | — |
-| A rehearsal is evidence. | 4 | — |
+| Recorded sample | 2 | — |
+| Preview a completed rehearsal | 4 | — |
+| This preview uses the same bundled sample as `rrc demo`. | 10 | — |
+| Play demo | 2 | — |
+| Failed checks | 2 | — |
+| Catch restore failures before an incident | 6 | — |
+| A failed command, health check, row count, or RTO writes a signed failed card. | 14 | — |
+| The CLI exits 4 and still runs cleanup. | 8 | — |
+| Product limits | 2 | — |
+| What the CLI does not do | 6 | — |
+| Bring your own backup, Docker context, and non-production credentials. | 9 | — |
+| The CLI does not call provider APIs. | 7 | — |
+| Optional team templates | 3 | — |
+| Add team review templates | 4 | — |
+| The Operator Pack adds a runbook, review agenda, RTO log, and six service worksheets. | 14 | — |
+| Every CLI feature remains free. | 5 | — |
+| $39 USD | 2 | — |
+| One-time purchase · updates included | 4 | — |
+| Weekly rehearsal runbook | 3 | — |
+| Failure review agenda | 3 | — |
+| RTO decision log template | 4 | — |
+| Six service profile worksheets | 4 | — |
+| Get the Operator Pack | 4 | — |
+| Have a license? Restore purchase | 5 | — |
+| License token | 2 | — |
+| Verify license | 2 | — |
+| Stored only in this browser. | 5 | — |
+| Paste the complete token from your receipt. | 7 | — |
+| Checkout and refunds are handled by Sociobot/Dodo, the merchant of record. | 11 | — |
+| Free CLI | 2 | — |
+| Run your first restore rehearsal | 5 | — |
+| Install the free CLI | 4 | — |
 
 ## Terminology table
 
 | Concept | One term used |
 | --- | --- |
 | declared rehearsal configuration | manifest |
-| temporary disposable service target | isolated target |
+| disposable service environment | target |
 | generated evidence document | signed card |
-| bundled non-user sample | sample |
+| bundled non-user content | sample |
 | optional paid templates | Operator Pack |

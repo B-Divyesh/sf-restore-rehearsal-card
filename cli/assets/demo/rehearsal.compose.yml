@@ -14,7 +14,8 @@ services:
     volumes: [database-rehearsal:/var/lib/postgresql/data]
 
 networks:
-  rehearsal: {}
+  rehearsal:
+    internal: true
 
 volumes:
   database-rehearsal: {}

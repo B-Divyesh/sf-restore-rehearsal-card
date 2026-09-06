@@ -138,6 +138,12 @@ input[aria-invalid="true"] { border-color: var(--flare); }
 .sample-command { margin-top: 40px; padding: 28px; border: 1px solid var(--line); border-radius: 4px 22px 4px 22px; background: var(--basin); }
 .sample-command pre { margin: 20px 0; color: var(--chalk); }
 .sample-state { min-height: 1.5em; color: var(--signal); }
+.sample-result { margin-top: 32px; }
+.sample-label { color: var(--signal); font-weight: 700; }
+.sample-result dl { margin: 24px 0; }
+.sample-result dl div { display: grid; grid-template-columns: minmax(96px, .5fr) 1fr; gap: 16px; padding: 12px 0; border-bottom: 1px solid var(--line); }
+.sample-result dt { color: var(--mist); }
+.sample-result dd { margin: 0; color: var(--chalk); font-variant-numeric: tabular-nums; }
 .not-found { max-width: 760px; min-height: calc(100vh - 232px); margin: 0 auto; padding: 112px 24px; }
 .closing { padding-block: 144px; text-align: center; }
 .closing h2 { margin-bottom: 40px; }
@@ -175,6 +181,7 @@ footer { min-height: 160px; padding: 40px max(24px, calc((100vw - 1180px)/2)); d
   .action-note { max-width: none; text-align: center; }
   .demo-banner { align-items: stretch; flex-direction: column; padding-inline: 16px; text-align: center; }
   .demo-banner .button { justify-content: center; }
+  .sample-result dl div { grid-template-columns: 1fr; gap: 4px; }
   .observatory { width: 128%; margin-left: -14%; }
   .observatory figcaption { display: none; }
   .signal-band { align-items: flex-start; flex-direction: column; }

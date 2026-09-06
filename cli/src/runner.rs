@@ -176,17 +176,49 @@ fn preflight_compose(manifest: &Manifest, base: &Path) -> Result<(), String> {
     }
     let config: Value = serde_json::from_slice(&output.stdout)
         .map_err(|_| "Docker Compose returned invalid config JSON".to_string())?;
-    reject_unsafe_compose(&config)
+    reject_unsafe_compose(&config, &manifest.compose.project)
 }
 
-fn reject_unsafe_compose(config: &Value) -> Result<(), String> {
+const UNSAFE_COMPOSE_PREFIX: &str = "unsafe Compose isolation:";
+
+fn unsafe_compose(message: impl AsRef<str>) -> String {
+    format!("{UNSAFE_COMPOSE_PREFIX} {}", message.as_ref())
+}
+
+fn has_items(value: Option<&Value>) -> bool {
+    value.is_some_and(|item| match item {
+        Value::Array(items) => !items.is_empty(),
+        Value::Object(items) => !items.is_empty(),
+        Value::Null => false,
+        _ => true,
+    })
+}
+
+fn reject_unsafe_compose(config: &Value, project: &str) -> Result<(), String> {
     if let Some(services) = config.get("services").and_then(Value::as_object) {
         for (name, service) in services {
-            if service.get("network_mode").and_then(Value::as_str) == Some("host") {
-                return Err(format!("service {name} uses host networking"));
+            if service
+                .get("network_mode")
+                .and_then(Value::as_str)
+                .is_some_and(|mode| !mode.is_empty() && mode != "none")
+            {
+                return Err(unsafe_compose(format!(
+                    "service {name} overrides its project network namespace"
+                )));
+            }
+            for namespace in ["pid", "ipc", "uts", "userns_mode", "cgroup"] {
+                if service
+                    .get(namespace)
+                    .and_then(Value::as_str)
+                    .is_some_and(|mode| !mode.is_empty() && mode != "private")
+                {
+                    return Err(unsafe_compose(format!(
+                        "service {name} overrides its {namespace} namespace"
+                    )));
+                }
             }
             if service.get("privileged").and_then(Value::as_bool) == Some(true) {
-                return Err(format!("service {name} is privileged"));
+                return Err(unsafe_compose(format!("service {name} is privileged")));
             }
             if service
                 .get("volumes")
@@ -197,9 +229,51 @@ fn reject_unsafe_compose(config: &Value) -> Result<(), String> {
                         .any(|volume| volume.get("type").and_then(Value::as_str) == Some("bind"))
                 })
             {
-                return Err(format!(
+                return Err(unsafe_compose(format!(
                     "service {name} uses a host bind mount; copy artifacts explicitly instead"
-                ));
+                )));
+            }
+            for field in [
+                "cap_add",
+                "devices",
+                "device_cgroup_rules",
+                "external_links",
+                "ports",
+                "volumes_from",
+            ] {
+                if has_items(service.get(field)) {
+                    return Err(unsafe_compose(format!(
+                        "service {name} declares host-facing `{field}` access"
+                    )));
+                }
+            }
+            for field in ["container_name", "credential_spec", "provider", "runtime"] {
+                if has_items(service.get(field)) {
+                    return Err(unsafe_compose(format!(
+                        "service {name} declares host-scoped `{field}` access"
+                    )));
+                }
+            }
+            if service.get("use_api_socket").and_then(Value::as_bool) == Some(true) {
+                return Err(unsafe_compose(format!(
+                    "service {name} requests the Docker API socket"
+                )));
+            }
+            if service
+                .get("security_opt")
+                .and_then(Value::as_array)
+                .is_some_and(|options| {
+                    options.iter().filter_map(Value::as_str).any(|option| {
+                        let option = option.to_ascii_lowercase();
+                        option.contains("unconfined")
+                            || option == "label:disable"
+                            || option == "no-new-privileges:false"
+                    })
+                })
+            {
+                return Err(unsafe_compose(format!(
+                    "service {name} disables a container security boundary"
+                )));
             }
         }
     }
@@ -207,7 +281,18 @@ fn reject_unsafe_compose(config: &Value) -> Result<(), String> {
         if let Some(items) = config.get(group).and_then(Value::as_object) {
             for (name, item) in items {
                 if item.get("external").and_then(Value::as_bool) == Some(true) {
-                    return Err(format!("external {group} entry is not isolated: {name}"));
+                    return Err(unsafe_compose(format!(
+                        "external {group} entry is not isolated: {name}"
+                    )));
+                }
+                if item
+                    .get("name")
+                    .and_then(Value::as_str)
+                    .is_some_and(|resolved| !resolved.starts_with(&format!("{project}_")))
+                {
+                    return Err(unsafe_compose(format!(
+                        "{group} entry `{name}` is not scoped to project `{project}`"
+                    )));
                 }
             }
         }
@@ -455,7 +540,11 @@ fn execute(program: &str, args: &[String], timeout_seconds: u64) -> Result<Outpu
         .join()
         .map_err(|_| format!("could not collect {program} stderr"))?
         .map_err(|e| format!("could not collect {program} stderr: {e}"))?;
-    Ok(Output { status, stdout, stderr })
+    Ok(Output {
+        status,
+        stdout,
+        stderr,
+    })
 }
 
 fn exit_label(output: &Output) -> String {
@@ -509,18 +598,42 @@ mod tests {
     use serde_json::json;
 
     #[test]
-    fn compose_safety_rejects_host_access() {
-        assert!(
-            reject_unsafe_compose(&json!({"services": {"db": {"network_mode": "host"}}})).is_err()
-        );
-        assert!(reject_unsafe_compose(
-            &json!({"services": {"db": {"volumes": [{"type": "bind"}]}}})
-        )
-        .is_err());
-        assert!(reject_unsafe_compose(
-            &json!({"services": {"db": {"image": "postgres"}}, "networks": {"default": {}}})
-        )
-        .is_ok());
+    fn compose_safety_rejects_host_and_external_access() {
+        let unsafe_models = [
+            json!({"services": {"db": {"network_mode": "host"}}}),
+            json!({"services": {"db": {"pid": "host"}}}),
+            json!({"services": {"db": {"ipc": "service:other"}}}),
+            json!({"services": {"db": {"uts": "host"}}}),
+            json!({"services": {"db": {"userns_mode": "host"}}}),
+            json!({"services": {"db": {"cgroup": "host"}}}),
+            json!({"services": {"db": {"privileged": true}}}),
+            json!({"services": {"db": {"volumes": [{"type": "bind"}]}}}),
+            json!({"services": {"db": {"cap_add": ["SYS_ADMIN"]}}}),
+            json!({"services": {"db": {"devices": ["/dev/kvm"]}}}),
+            json!({"services": {"db": {"device_cgroup_rules": ["c 1:3 mr"]}}}),
+            json!({"services": {"db": {"external_links": ["production-db"]}}}),
+            json!({"services": {"db": {"ports": [{"target": 5432, "published": "5432"}]}}}),
+            json!({"services": {"db": {"volumes_from": ["production-db"]}}}),
+            json!({"services": {"db": {"container_name": "production-db"}}}),
+            json!({"services": {"db": {"credential_spec": {"file": "host.json"}}}}),
+            json!({"services": {"db": {"runtime": "nvidia"}}}),
+            json!({"services": {"db": {"use_api_socket": true}}}),
+            json!({"services": {"db": {"security_opt": ["seccomp=unconfined"]}}}),
+            json!({"services": {"db": {"image": "postgres"}}, "networks": {"default": {"external": true}}}),
+            json!({"services": {"db": {"image": "postgres"}}, "volumes": {"data": {"external": true}}}),
+            json!({"services": {"db": {"image": "postgres"}}, "networks": {"default": {"name": "shared"}}}),
+        ];
+        for model in unsafe_models {
+            let error = reject_unsafe_compose(&model, "rrc-test").unwrap_err();
+            assert!(error.starts_with(UNSAFE_COMPOSE_PREFIX), "{error}");
+        }
+
+        let safe = json!({
+            "services": {"db": {"image": "postgres", "ipc": "private"}},
+            "networks": {"default": {"name": "rrc-test_default"}},
+            "volumes": {"data": {"name": "rrc-test_data"}}
+        });
+        assert!(reject_unsafe_compose(&safe, "rrc-test").is_ok());
     }
 
     #[test]

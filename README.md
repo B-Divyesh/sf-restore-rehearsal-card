@@ -1,10 +1,9 @@
 # Restore Rehearsal Card
 
-Restore Rehearsal Card (`rrc`) is a local, zero-telemetry CLI for operators who
-need proof that a backup restores into a usable service—not merely proof that a
-backup file exists. It starts a declared Docker Compose target, copies artifacts
-into that isolated target, runs restore commands and explicit assertions, records
-checksums and timings, then emits an Ed25519-signed Markdown card.
+Restore Rehearsal Card (`rrc`) is a local CLI for database and self-hosted
+service operators. It tests whether a backup restores into a usable service.
+It starts a declared Docker Compose target, copies declared artifacts, runs
+restore commands and checks, then writes an Ed25519-signed Markdown card.
 
 It does not store backups, host disaster recovery, print restored data, or
 bypass provider APIs.
@@ -23,8 +22,10 @@ when building from source.
 
 ## Usage
 
-Try the shipped PostgreSQL sample first. It creates a new temporary workspace,
-starts its declared disposable Compose target, and prints the signed card path:
+Try the shipped PostgreSQL sample first. It needs no account or license. Each
+run creates a temporary workspace and an internal Compose network. It restores
+one probe row, runs health and count checks, cleans up Docker, and prints the
+signed card path:
 
 ```sh
 rrc demo
@@ -67,7 +68,8 @@ rrc verify reports/weekly.md
 ```
 
 `rrc` exits `0` for a passed rehearsal, `2` for invalid input, `3` for a safety
-refusal, `4` for a failed step/check, and `5` for an invalid signature.
+refusal, `4` for a failed step or check, and `5` for an invalid signature.
+`--json` returns one JSON object for each scripted result.
 
 ## Manifest surface
 
@@ -108,8 +110,11 @@ See [`.factory/demo.md`](.factory/demo.md) for the sample sandbox and
 ## Privacy and purchase
 
 The CLI is local-first and has no telemetry or network client. The optional
-Operator Pack is a one-time purchase verified by the Sociobot license endpoint
-on the documentation site. See the site's `/privacy/` and `/terms/` pages.
+Operator Pack costs $39 USD once, with updates included. It provides a weekly
+rehearsal runbook, failure review agenda, RTO decision log, and six service
+profile worksheets. Every CLI feature remains free. The documentation site
+checks paid licenses through the Sociobot endpoint. See the site's `/privacy/`
+and `/terms/` pages.
 
 ## License
 

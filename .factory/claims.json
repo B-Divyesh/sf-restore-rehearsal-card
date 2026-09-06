@@ -1,10 +1,31 @@
 [
   {
     "id": "sample-cli-demo",
-    "claim": "Runs a bundled PostgreSQL sample with rrc demo",
+    "claim": "A clean-installed rrc runs the bundled PostgreSQL sample without an account or license and writes a verifiable signed card in a fresh temporary workspace",
     "where": "landing page, demo page, README",
-    "test": "cargo test --test e2e bundled_demo_runs_the_shipped_sample_in_a_temp_workspace",
-    "sandbox": "fresh temp directory with a Docker-compatible harness; assert the shipped sample runs and reports its workspace and signed-card path"
+    "test": "bash scripts/verify-installed-artifact.sh demo",
+    "sandbox": "package and install the crate into a fresh consumer root; place an unrelated manifest in the consumer directory; run the installed demo through a Docker-compatible harness; verify the untouched manifest, sample count, private-data omission, workspace, card, and signature"
+  },
+  {
+    "id": "compose-isolation",
+    "claim": "The CLI refuses host or external namespace access, bind mounts, capabilities, devices, published ports, Docker API access, unconfined security, privileged services, and external networks or volumes before startup",
+    "where": "landing page, README, manifest reference, package metadata",
+    "test": "bash scripts/verify-installed-artifact.sh isolation",
+    "sandbox": "clean-installed artifact with twelve normalized Docker Compose models; assert exit 3 and no command after preflight for every unsafe model, including pid: host"
+  },
+  {
+    "id": "cli-no-network",
+    "claim": "The CLI has no telemetry or internet client",
+    "where": "landing page, README, privacy page",
+    "test": "bash scripts/verify-installed-artifact.sh network",
+    "sandbox": "run the clean-installed sample under an IPv4/IPv6 socket-denial shim; fail if rrc or its local command flow attempts an internet socket"
+  },
+  {
+    "id": "safe-command-surface",
+    "claim": "The CLI rejects shell interpreters, copy destinations outside its temporary path, production-like targets, and mismatched target confirmation before Docker runs",
+    "where": "README, manifest reference, terms",
+    "test": "cargo test --test e2e unsafe_commands_destinations_and_targets_are_rejected_before_docker",
+    "sandbox": "fresh manifests with a shell command, path traversal, and wrong confirmation; assert input/safety exit codes, JSON errors, no card, and no Docker invocation"
   },
   {
     "id": "large-command-output",
@@ -15,51 +36,72 @@
   },
   {
     "id": "check-local-inputs",
-    "claim": "Check validates local signing keys and Compose files before a run",
+    "claim": "rrc check validates local signing keys and Compose files, while nested rrc init creates a manifest-relative mode-0600 key",
     "where": "rrc check help, README",
     "test": "cargo test --test e2e check_rejects_corrupt_inputs_and_nested_init_creates_a_runnable_manifest",
-    "sandbox": "fresh nested init output, malformed YAML, and corrupt key; assert JSON validation failures and a manifest-relative default key"
+    "sandbox": "fresh nested init output, malformed YAML, and corrupt key; assert JSON validation failures, manifest-relative key location, and private key permissions"
   },
   {
     "id": "signed-private-card",
-    "claim": "A passed drill writes a signed card without restored records",
-    "where": "landing page, README",
+    "claim": "A passed drill records the backup checksum and byte count, health, row count, timings, RTO result, and signature without restored records or command output",
+    "where": "landing page, demo page, README, manifest reference",
     "test": "cargo test --test e2e passing_run_emits_a_private_signed_card",
-    "sandbox": "fresh declared rehearsal against a Docker-compatible harness; verify the signature and assert a private backup value is absent"
+    "sandbox": "fresh declared rehearsal against a Docker-compatible harness; inspect the observed evidence, verify the signature, and assert a private backup value is absent"
   },
   {
     "id": "failed-drill-card",
-    "claim": "A failed check still writes a signed failed card",
-    "where": "landing page, README",
+    "claim": "A failed check exits 4, writes a signed failed card, and still removes the target and volumes",
+    "where": "landing page, README, manifest reference",
     "test": "cargo test --test e2e broken_check_exits_four_and_still_emits_valid_evidence",
-    "sandbox": "fresh declared rehearsal with an intentionally failing check; assert exit 4 and verify the card signature"
+    "sandbox": "fresh declared rehearsal with an intentionally failing check; assert exit 4, signed failed evidence, and the observed Compose down command with volumes and orphans"
+  },
+  {
+    "id": "stable-exit-codes",
+    "claim": "rrc uses exit codes 0, 2, 3, 4, and 5 for pass, invalid input, safety refusal, failed rehearsal, and invalid signature, with JSON results for scripts",
+    "where": "README and command help",
+    "test": "cargo test --test e2e documented_exit_codes_and_json_results_are_observable",
+    "sandbox": "fresh compiled CLI inputs for every documented outcome; assert each process status and parseable JSON output"
   },
   {
     "id": "sample-demo-route",
-    "claim": "The demo page uses sample data and offers reset and start-for-real controls",
-    "where": "landing hero, /demo",
+    "claim": "The demo page shows realistic populated sample output, keeps its sample label visible, resets, offers a real-start link, and does not change existing browser data",
+    "where": "landing first action, /demo",
     "test": "npm run test:browser -- --grep @claim:sample-demo-route",
-    "sandbox": "fresh browser context at /demo; reset the demo and assert its fresh-state message and real-start link"
+    "sandbox": "fresh browser context with a sentinel real-data key; enter /demo, inspect populated output, reset, and assert the banner, output, link, and storage remain correct"
   },
   {
     "id": "site-no-analytics",
-    "claim": "The sample page makes no third-party analytics requests",
-    "where": "landing privacy fact, privacy page",
+    "claim": "The website loads no analytics or advertising trackers",
+    "where": "privacy page",
     "test": "npm run test:browser -- --grep @claim:site-no-analytics",
     "sandbox": "fresh browser context through the demo reset flow; assert every observed request is same-origin"
   },
   {
+    "id": "operator-pack-offer",
+    "claim": "The $39 USD one-time Operator Pack includes updates, a rehearsal runbook, failure review agenda, RTO decision log, and six service profile worksheets while every CLI feature remains free",
+    "where": "landing pricing, terms, README",
+    "test": "npm run test:browser -- --grep @claim:operator-pack-offer",
+    "sandbox": "fresh licensed browser context; assert the exact offer and download each advertised file, checking its usable contents and six named worksheets"
+  },
+  {
     "id": "production-checkout",
-    "claim": "The Operator Pack checkout uses the production Sociobot endpoint",
+    "claim": "The Operator Pack purchase action opens the production Sociobot hosted checkout",
     "where": "Operator Pack purchase button",
     "test": "npm run test:browser -- --grep @claim:production-checkout",
-    "sandbox": "fresh browser context; assert the observable checkout link is the production Sociobot product endpoint"
+    "sandbox": "fresh browser context with the production checkout response intercepted; click the purchase action and assert navigation to the exact product endpoint"
   },
   {
     "id": "production-license-verification",
-    "claim": "License verification defaults to the production Sociobot API",
+    "claim": "License verification uses the product-specific production Sociobot API",
     "where": "privacy page, license flow",
     "test": "npx vitest run --config site/vitest.config.ts -t @claim:production-license-verification",
-    "sandbox": "mock fetch from a clean storage state; assert the product-specific production verification URL"
+    "sandbox": "mock fetch from a clean storage state and assert the product-specific production verification request"
+  },
+  {
+    "id": "license-storage-cache",
+    "claim": "A returned Operator Pack license is stored only in browser local storage, removed from the visible URL, and rechecked no more than once per day",
+    "where": "privacy page and purchase flow",
+    "test": "npm run test:browser -- --grep @claim:license-storage-cache",
+    "sandbox": "fresh browser storage and mocked valid verification; enter through a return URL, assert token storage and URL cleanup, reload, and assert no second request"
   }
 ]

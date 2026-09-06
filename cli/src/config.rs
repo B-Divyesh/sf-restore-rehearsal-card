@@ -400,9 +400,14 @@ service = "database"
 "#,
         )
         .unwrap();
-        assert!(load_manifest(&manifest_path).unwrap_err().contains("invalid Compose YAML"));
-        fs::write(dir.path().join("compose.yml"), "services:\n  database:\n    image: postgres\n")
-            .unwrap();
+        assert!(load_manifest(&manifest_path)
+            .unwrap_err()
+            .contains("invalid Compose YAML"));
+        fs::write(
+            dir.path().join("compose.yml"),
+            "services:\n  database:\n    image: postgres\n",
+        )
+        .unwrap();
         assert!(load_manifest(&manifest_path)
             .unwrap_err()
             .contains("signing key"));

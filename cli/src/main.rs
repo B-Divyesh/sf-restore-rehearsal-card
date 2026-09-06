@@ -76,11 +76,18 @@ enum Commands {
 
 fn main() -> ExitCode {
     let cli = Cli::parse();
-    let json_errors = matches!(&cli.command, Commands::Check { json: true, .. });
+    let json_errors = matches!(
+        &cli.command,
+        Commands::Check { json: true, .. }
+            | Commands::Run { json: true, .. }
+            | Commands::Verify { json: true, .. }
+    );
     match execute(cli) {
         Ok(()) => ExitCode::SUCCESS,
         Err((code, message)) => {
-            if json_errors {
+            if message.is_empty() {
+                // A failed rehearsal already wrote its single JSON result.
+            } else if json_errors {
                 println!("{}", json!({"valid": false, "error": message}));
             } else {
                 eprintln!("rrc: {message}");
@@ -155,19 +162,7 @@ fn execute(cli: Cli) -> Result<(), (u8, String)> {
                 output_path: output,
                 keep_target,
             };
-            let result = run_rehearsal(&manifest, &options).map_err(|error| {
-                let safety = [
-                    "host networking",
-                    "privileged",
-                    "bind mount",
-                    "external networks",
-                    "external volumes",
-                    "confirmation",
-                ]
-                .iter()
-                .any(|needle| error.contains(needle));
-                (if safety { 3 } else { 4 }, error)
-            })?;
+            let result = run_rehearsal(&manifest, &options).map_err(classify_run_error)?;
             if json {
                 println!(
                     "{}",
@@ -182,7 +177,14 @@ fn execute(cli: Cli) -> Result<(), (u8, String)> {
                 );
             }
             if !result.passed {
-                return Err((4, "rehearsal failed; inspect the signed card".into()));
+                return Err((
+                    4,
+                    if json {
+                        String::new()
+                    } else {
+                        "rehearsal failed; inspect the signed card".into()
+                    },
+                ));
             }
         }
         Commands::Verify { card, json } => {
@@ -213,15 +215,31 @@ fn run_demo(keep_target: bool) -> Result<(), (u8, String)> {
         .map_err(|e| (4, format!("could not create demo workspace: {e}")))?
         .as_nanos();
     let workspace = std::env::temp_dir().join(format!("rrc-demo-{}-{unique}", std::process::id()));
-    fs::create_dir_all(&workspace)
-        .map_err(|e| (4, format!("could not create demo workspace {}: {e}", workspace.display())))?;
-    fs::write(workspace.join("rehearsal.compose.yml"), include_str!("../assets/demo/rehearsal.compose.yml"))
-        .map_err(|e| (4, format!("could not write bundled demo Compose file: {e}")))?;
-    fs::write(workspace.join("sample-backup.sql"), include_str!("../assets/demo/sample-backup.sql"))
-        .map_err(|e| (4, format!("could not write bundled demo backup: {e}")))?;
+    fs::create_dir_all(&workspace).map_err(|e| {
+        (
+            4,
+            format!(
+                "could not create demo workspace {}: {e}",
+                workspace.display()
+            ),
+        )
+    })?;
+    fs::write(
+        workspace.join("rehearsal.compose.yml"),
+        include_str!("../assets/demo/rehearsal.compose.yml"),
+    )
+    .map_err(|e| (4, format!("could not write bundled demo Compose file: {e}")))?;
+    fs::write(
+        workspace.join("sample-backup.sql"),
+        include_str!("../assets/demo/sample-backup.sql"),
+    )
+    .map_err(|e| (4, format!("could not write bundled demo backup: {e}")))?;
     let manifest_path = workspace.join("restore-rehearsal.toml");
-    fs::write(&manifest_path, include_str!("../assets/demo/restore-rehearsal.toml"))
-        .map_err(|e| (4, format!("could not write bundled demo manifest: {e}")))?;
+    fs::write(
+        &manifest_path,
+        include_str!("../assets/demo/restore-rehearsal.toml"),
+    )
+    .map_err(|e| (4, format!("could not write bundled demo manifest: {e}")))?;
     let key_path = workspace.join(".rrc/rehearsal.key");
     write_new_key(&key_path).map_err(|error| (4, error))?;
     let manifest = load_manifest(&manifest_path).map_err(|error| (2, error))?;
@@ -232,19 +250,32 @@ fn run_demo(keep_target: bool) -> Result<(), (u8, String)> {
         output_path: card.clone(),
         keep_target,
     };
-    let result = run_rehearsal(&manifest, &options).map_err(|error| (4, error))?;
-    println!("Sample rehearsal {}. Workspace: {}. Card: {}", if result.passed { "passed" } else { "failed" }, workspace.display(), card.display());
+    let result = run_rehearsal(&manifest, &options).map_err(classify_run_error)?;
+    println!(
+        "Sample rehearsal {}. Workspace: {}. Card: {}",
+        if result.passed { "passed" } else { "failed" },
+        workspace.display(),
+        card.display()
+    );
     if !result.passed {
         return Err((4, "sample rehearsal failed; inspect the signed card".into()));
     }
     Ok(())
 }
 
+fn classify_run_error(error: String) -> (u8, String) {
+    let safety = error.starts_with("unsafe Compose isolation:");
+    (if safety { 3 } else { 4 }, error)
+}
+
 fn resolve_from_manifest(manifest: &Path, path: &Path) -> PathBuf {
     if path.is_absolute() {
         path.to_path_buf()
     } else {
-        manifest.parent().unwrap_or_else(|| Path::new(".")).join(path)
+        manifest
+            .parent()
+            .unwrap_or_else(|| Path::new("."))
+            .join(path)
     }
 }
 
